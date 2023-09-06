@@ -13,15 +13,14 @@ from radboudsudoku.sudoku import parse_from_csv, write_to_csv
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]}, invoke_without_command=True)
 @click.version_option(version=__version__, prog_name="RadboudSudoku")
+@click.option("-o", "--output", help="Output path")
 @click.argument("puzzle")
-def radboudsudoku(puzzle):
+def radboudsudoku(output, puzzle):
     """
     This is a command line interface that solves Sudokus, given in an CSV file, using an SMT-solver.
-
-    TODO: The export to the solution.csv is undocumented and not configurable.
-    TODO: The paths are not checked for existence.
-    :return:
     """
+
+    # TODO: The paths are not checked for existence.
     puzzle = parse_from_csv(puzzle)
     solver = smtsolver.SmtBasedSolver()
     solver.encode(puzzle)
@@ -34,7 +33,11 @@ def radboudsudoku(puzzle):
         # Write the solution into the puzzle
         for cell, value in solution.items():
             solution_puzzle.set_value(cell.row, cell.column, value)
-        write_to_csv("solution.csv", solution_puzzle)
+        if output is not None:
+            print("Writing solution to file...")
+            write_to_csv(output, solution_puzzle)
+        else:
+            write_to_csv(None, solution_puzzle)
         # Check whether the solution is a valid solution
         try:
             solution_puzzle.check_is_valid()

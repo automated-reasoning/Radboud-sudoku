@@ -74,7 +74,7 @@ class SmtBasedSolver:
 
     def _add_all_different(self, variables) -> None:
         for index, lhs_var in enumerate(variables):
-            for rhs_var in variables[index+1:]:
+            for rhs_var in variables[index + 1 :]:
                 self._smt_solver.add(lhs_var != rhs_var)
 
     def _add_either_value(self, variable: smtapi.Int, values: typing.Iterable[int]) -> None:

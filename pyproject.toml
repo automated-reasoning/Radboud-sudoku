@@ -29,9 +29,9 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/unknown/radboudsudoku#readme"
-Issues = "https://github.com/unknown/radboudsudoku/issues"
-Source = "https://github.com/unknown/radboudsudoku"
+Documentation = "https://github.com/automated-reasoning/radboudsudoku#readme"
+Issues = "https://github.com/automated-reasoning/radboudsudoku/issues"
+Source = "https://github.com/automated-reasoning/radboudsudoku"
 
 [project.scripts]
 radboudsudoku = "radboudsudoku.cli:radboudsudoku"

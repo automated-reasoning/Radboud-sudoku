@@ -2,11 +2,12 @@
 This file contains a sudoku class and a parser/serializer.
 """
 import csv
+import sys
 import typing
 from itertools import product as cart_product
 
 
-def _remove_none(list_with_none: list[int|None]):
+def _remove_none(list_with_none: list[int | None]) -> list[int]:
     """
     Auxiliary function to remove None from a list
     :param list_with_none: A list
@@ -19,6 +20,7 @@ class SudokuCell:
     """
     Thin wrapper, basically a named tuple, that represents a cell in a Sudoku.
     """
+
     def __init__(self, row, column):
         self.row = row
         self.column = column
@@ -34,6 +36,7 @@ class SudokuRectangularBlock:
     """
     This class represents a rectangular block inside a Sudoku, where every value may exists at most once.
     """
+
     def __init__(self, min_row: int, max_row: int, min_column: int, max_column: int) -> None:
         self._min_row = min_row
         self._max_row = max_row
@@ -63,7 +66,7 @@ class SudokuRectangularBlock:
 
     @property
     def _row_indices(self) -> list[int]:
-        return list(range(self._min_row, self._max_row+1))
+        return list(range(self._min_row, self._max_row + 1))
 
     @property
     def _column_indices(self) -> list[int]:
@@ -90,6 +93,7 @@ class Sudoku:
 
     Rows and columns start with zero. The dimension is currently fixed to be 9.
     """
+
     def __init__(self) -> None:
         dimension = 9
         allowed_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -97,8 +101,10 @@ class Sudoku:
         self._nr_columns = dimension
         self._allowed_values = allowed_values
         self._field: list[list[int | None]] = [[None for _ in range(self._nr_rows)] for _ in range(self._nr_columns)]
-        self._blocks = [SudokuRectangularBlock(block_rows[0], block_rows[1], block_columns[0], block_columns[1])
-                        for block_rows, block_columns in cart_product(BLOCK_ROWS, BLOCK_COLUMNS)]
+        self._blocks = [
+            SudokuRectangularBlock(block_rows[0], block_rows[1], block_columns[0], block_columns[1])
+            for block_rows, block_columns in cart_product(BLOCK_ROWS, BLOCK_COLUMNS)
+        ]
 
     @property
     def allowed_values(self) -> list[int]:
@@ -260,10 +266,12 @@ class Sudoku:
 
 def parse_from_csv(location) -> Sudoku:
     """
-    Parse a CSV with a sudoku.
+    Parse a CSV with a sudoku. Throws an error if the input is no longer valid.
     :param location: The location of the csv.
-    :return:
+    :return: The puzzle in a Sudoku object.
     """
+
+    # TODO This can be made more robust
     result = Sudoku()
     with open(location, newline="", encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
@@ -278,11 +286,15 @@ def parse_from_csv(location) -> Sudoku:
 def write_to_csv(location, puzzle: Sudoku) -> None:
     """
     Exports a sudoku puzzle to a sudoku.
-    :param location: The location of the csv.
-    :param puzzle:
-    :return:
+    :param location: The location of the csv. Can be None, then the csv is written to stdout
+    :param puzzle: the puzzle that is to be written
     """
-    with open(location, "w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.writer(csvfile)
+    if location is not None:
+        with open(location, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.writer(csvfile)
+            for row in puzzle.row_indices:
+                writer.writerow([puzzle.get_value(row, column) for column in puzzle.column_indices])
+    else:
+        writer = csv.writer(sys.stdout)
         for row in puzzle.row_indices:
             writer.writerow([puzzle.get_value(row, column) for column in puzzle.column_indices])
